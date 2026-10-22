@@ -1,0 +1,15 @@
+node_modules
+.next
+out
+dist
+coverage
+.vercel
+*.log
+*.tsbuildinfo
+*.tmp
+
+.env
+.env.*
+!.env.example
+
+data/live-leaderboard.json
