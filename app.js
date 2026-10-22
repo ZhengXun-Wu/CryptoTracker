@@ -57,19 +57,26 @@ function book(bot) {
   return block;
 }
 
+function formatEstimate(value) {
+  const rounded = value.toFixed(2);
+  return value > 0 ? `試算 +${rounded}` : `試算 ${rounded}`;
+}
+
 function orderGroup(title, orders) {
   const section = el('div');
   section.append(el('p', 'sublabel', title));
   const list = el('ul');
   for (const order of orders) {
-    list.append(line([
+    const item = line([
       order.instrument,
       order.side,
       order.kind === '委託' ? '' : order.kind,
       order.orderType,
       order.price ? `價格 ${order.price}` : '',
       order.size ? `數量 ${order.size}` : '',
-    ]));
+    ]);
+    if (order.estPnl != null) item.append(el('span', `est-pnl ${returnTone(order.estPnl)}`, formatEstimate(order.estPnl)));
+    list.append(item);
   }
   section.append(list);
   return section;
@@ -103,9 +110,19 @@ function botCard(bot, compact) {
   pill.dataset.team = bot.group;
   meta.append(pill);
   identity.append(meta);
-  const score = el('div', `score ${returnTone(bot.returnPct)}`);
-  score.append(el('p', 'label', '損益比'));
-  score.append(el('strong', '', bot.status === '未入金' ? '未入金' : formatReturn(bot.returnPct)));
+  const score = el('div', 'score');
+  const lineBox = el('div', 'score-line');
+  const headline = el('div', 'score-headline');
+  headline.append(el('p', 'label', '權益金含掛單試算'));
+  headline.append(el('strong', returnTone(bot.returnPct), bot.status === '未入金' ? '未入金' : formatReturn(bot.returnPct)));
+  lineBox.append(headline);
+  if (bot.status !== '未入金') {
+    const actual = el('div', 'score-actual');
+    actual.append(el('p', 'label', '實際'));
+    actual.append(el('strong', returnTone(bot.actualReturnPct), formatReturn(bot.actualReturnPct)));
+    lineBox.append(actual);
+  }
+  score.append(lineBox);
   card.append(place, identity, score, instruments(bot), book(bot));
   return card;
 }
@@ -157,7 +174,7 @@ function render(board) {
   const overallHead = el('div', 'section-head');
   overallHead.append(el('h2', '', '總排行'));
   overallHead.querySelector('h2').id = 'overall-heading';
-  overallHead.append(el('p', '', '依損益比排序'));
+  overallHead.append(el('p', '', '依權益金含掛單試算排序'));
   overall.append(overallHead);
   if (board.bots.length === 0) {
     overall.append(el('p', 'empty', '目前沒有競賽資料。'));
@@ -176,7 +193,7 @@ function render(board) {
   const teamHead = el('div', 'section-head');
   const teamsHeading = el('h2', '', '分組戰況');
   teamsHeading.id = 'teams-heading';
-  teamHead.append(teamsHeading, el('p', '', '合計與平均只計入已入金且有損益比的選手。'));
+  teamHead.append(teamsHeading, el('p', '', '合計與平均依權益金含掛單試算，只計入已入金的選手。'));
   teams.append(teamHead);
   const grid = el('div', 'team-grid');
   for (const team of board.teams) {
@@ -185,7 +202,7 @@ function render(board) {
     const head = el('header', 'team-head');
     head.append(el('h3', '', team.name), el('p', 'count', `計入 ${team.scoredCount} 位`));
     const stats = el('div', 'stats');
-    for (const [label, value] of [['平均損益比', team.averageReturnPct], ['合計損益比', team.totalReturnPct]]) {
+    for (const [label, value] of [['平均（含掛單）', team.averageReturnPct], ['合計（含掛單）', team.totalReturnPct]]) {
       const stat = el('div', 'stat');
       stat.append(el('p', 'label', label), el('strong', returnTone(value), formatReturn(value)));
       stats.append(stat);
@@ -201,7 +218,7 @@ function render(board) {
     grid.append(card);
   }
   teams.append(grid);
-  main.append(overall, teams, el('p', 'footer-note', '唯讀競賽排行榜'));
+  main.append(overall, teams, el('p', 'footer-note', '含掛單試算：把尚未成交的限價掛單當作已在掛單價成交，以現價估算損益；條件單不計入。'));
   root.append(header, main);
 }
 

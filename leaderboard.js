@@ -94,6 +94,10 @@ function normalizePosition(value) {
   };
 }
 
+function finiteNumber(value) {
+  return typeof value === 'number' && Number.isFinite(value) ? value : null;
+}
+
 function normalizeOrder(value) {
   if (!value || typeof value !== 'object') return null;
   const instrument = text(value.instId);
@@ -105,6 +109,7 @@ function normalizeOrder(value) {
     size: text(value.sz),
     price: text(value.px),
     kind: orderKindLabel(value.kind),
+    estPnl: finiteNumber(value.est_pnl),
   };
 }
 
@@ -113,7 +118,11 @@ function normalizeBot(value) {
   const name = text(value.name);
   if (!name) return null;
   const funded = value.funded === true;
-  const returnPct = typeof value.return_pct === 'number' && Number.isFinite(value.return_pct) ? value.return_pct : null;
+  const legacyReturn = finiteNumber(value.return_pct);
+  const withPending = finiteNumber(value.return_pct_with_pending);
+  const actual = finiteNumber(value.return_pct_actual);
+  const returnPct = withPending ?? legacyReturn;
+  const actualReturnPct = actual ?? legacyReturn;
   const positions = Array.isArray(value.positions) ? value.positions.map(normalizePosition).filter(Boolean) : [];
   const orders = Array.isArray(value.orders) ? value.orders.map(normalizeOrder).filter(Boolean) : [];
   const declared = stringList(value.instruments);
@@ -126,6 +135,7 @@ function normalizeBot(value) {
     funded,
     status: funded ? 'ok' : '未入金',
     returnPct: funded ? returnPct : null,
+    actualReturnPct: funded ? actualReturnPct : null,
     scored: funded && returnPct != null,
     instruments,
     positions,

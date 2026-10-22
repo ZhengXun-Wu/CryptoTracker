@@ -13,7 +13,12 @@
       "group": "穩健組",
       "funded": true,
       "return_pct": -0.02,
+      "return_pct_actual": -0.02,
       "equity_usdt": 4999.12,
+      "equity_actual_usdt": 4999.12,
+      "pending_pnl_usdt": 0,
+      "equity_with_pending_usdt": 4999.12,
+      "return_pct_with_pending": -0.02,
       "instruments": ["BTC-USDT"],
       "positions": [
         {
@@ -41,7 +46,12 @@
       "group": "穩健組",
       "funded": false,
       "return_pct": 40,
+      "return_pct_actual": 40,
       "equity_usdt": 0,
+      "equity_actual_usdt": 0,
+      "pending_pnl_usdt": 0,
+      "equity_with_pending_usdt": 0,
+      "return_pct_with_pending": 77.77,
       "instruments": [],
       "positions": [],
       "orders": []
@@ -51,7 +61,12 @@
       "group": "進攻組",
       "funded": true,
       "return_pct": 18.64,
+      "return_pct_actual": 18.64,
       "equity_usdt": 5932,
+      "equity_actual_usdt": 5932,
+      "pending_pnl_usdt": 120,
+      "equity_with_pending_usdt": 6052,
+      "return_pct_with_pending": 21.04,
       "instruments": ["BTC-USDT", "ETH-USDT"],
       "positions": [
         {
@@ -70,7 +85,8 @@
           "ordType": "limit",
           "sz": "0.8",
           "px": "3180",
-          "kind": "order"
+          "kind": "order",
+          "est_pnl": 120
         },
         {
           "instId": "BTC-USDT-SWAP",
@@ -95,7 +111,12 @@
       "group": "進攻組",
       "funded": true,
       "return_pct": 9.2,
+      "return_pct_actual": 9.2,
       "equity_usdt": 5460,
+      "equity_actual_usdt": 5460,
+      "pending_pnl_usdt": -40,
+      "equity_with_pending_usdt": 5420,
+      "return_pct_with_pending": 8.4,
       "instruments": ["SOL-USDT", "DOGE-USDT"],
       "positions": [
         {
@@ -114,7 +135,8 @@
           "ordType": "limit",
           "sz": "800",
           "px": "0.162",
-          "kind": "order"
+          "kind": "order",
+          "est_pnl": -40
         },
         {
           "instId": "SOL-USDT-SWAP",

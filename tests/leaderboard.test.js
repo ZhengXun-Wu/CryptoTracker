@@ -48,32 +48,80 @@ test('ranks the sample file and hides account fields', () => {
   assert.equal(board.tradingMode, 'demo');
   assert.match(board.updatedAtLabel, /2026/);
   assert.match(board.updatedAtLabel, /14/);
-  assert.deepEqual(board.bots.map((bot) => [bot.name, bot.returnPct, bot.status]), [
-    ['Crypto激進份子', 18.64, 'ok'],
-    ['Crypto狂熱份子', 9.2, 'ok'],
-    ['Crypto防禦派', -0.02, 'ok'],
-    ['Crypto保守派', null, '未入金'],
+  assert.deepEqual(board.bots.map((bot) => [bot.name, bot.returnPct, bot.actualReturnPct, bot.status]), [
+    ['Crypto激進份子', 21.04, 18.64, 'ok'],
+    ['Crypto狂熱份子', 8.4, 9.2, 'ok'],
+    ['Crypto防禦派', -0.02, -0.02, 'ok'],
+    ['Crypto保守派', null, null, '未入金'],
   ]);
   const leader = board.bots[0];
   assert.deepEqual(leader.instruments, ['BTC-USDT', 'ETH-USDT']);
   assert.equal(leader.positions[0].side, '多');
-  assert.equal(leader.orders.find((order) => order.kind === '停損').price, '62000');
-  assert.equal(leader.orders.find((order) => order.kind === '停利').price, '69000');
+  const ethOrder = leader.orders.find((order) => order.instrument === 'ETH-USDT');
+  assert.equal(ethOrder.estPnl, 120);
+  const stop = leader.orders.find((order) => order.kind === '停損');
+  const takeProfit = leader.orders.find((order) => order.kind === '停利');
+  assert.equal(stop.price, '62000');
+  assert.equal(stop.estPnl, null);
+  assert.equal(takeProfit.price, '69000');
+  assert.equal(takeProfit.estPnl, null);
+  assert.equal(board.bots[1].orders.find((order) => order.instrument === 'DOGE-USDT').estPnl, -40);
   const attack = board.teams.find((team) => team.name === '進攻組');
   const steady = board.teams.find((team) => team.name === '穩健組');
-  assert.ok(Math.abs(attack.totalReturnPct - 27.84) < 1e-9);
-  assert.ok(Math.abs(attack.averageReturnPct - 13.92) < 1e-9);
+  assert.ok(Math.abs(attack.totalReturnPct - 29.44) < 1e-9);
+  assert.ok(Math.abs(attack.averageReturnPct - 14.72) < 1e-9);
   assert.equal(steady.scoredCount, 1);
   assert.equal(steady.averageReturnPct, -0.02);
   assert.equal(steady.totalReturnPct, -0.02);
   const blob = JSON.stringify(board);
   const present = keysOf(board);
-  for (const hidden of ['equity_usdt', 'markPx', 'upl', 'clOrdId', 'uid', 'apiKey']) {
+  for (const hidden of ['equity_usdt', 'equity_actual_usdt', 'equity_with_pending_usdt', 'pending_pnl_usdt', 'markPx', 'upl', 'clOrdId', 'uid', 'apiKey']) {
     assert.equal(present.has(hidden), false);
   }
   assert.equal(blob.includes('4999.12'), false);
   assert.equal(blob.includes('5932'), false);
   assert.equal(blob.includes('67120'), false);
+  assert.equal(blob.includes('77.77'), false);
+});
+
+test('ranks by return_pct_with_pending and keeps older return_pct files', () => {
+  const board = buildBoard({
+    bots: [
+      { name: '甲', group: '穩健組', funded: true, return_pct: 10, return_pct_actual: 10, return_pct_with_pending: 1 },
+      { name: '乙', group: '進攻組', funded: true, return_pct: 2, return_pct_actual: 2, return_pct_with_pending: 5 },
+    ],
+  });
+  assert.deepEqual(board.bots.map((bot) => [bot.name, bot.returnPct, bot.actualReturnPct]), [
+    ['乙', 5, 2],
+    ['甲', 1, 10],
+  ]);
+  assert.equal(board.teams.find((team) => team.name === '進攻組').totalReturnPct, 5);
+  assert.equal(board.teams.find((team) => team.name === '穩健組').totalReturnPct, 1);
+
+  const older = buildBoard({
+    bots: [{ name: '丙', group: '穩健組', funded: true, return_pct: 3 }],
+  });
+  assert.equal(older.bots[0].returnPct, 3);
+  assert.equal(older.bots[0].actualReturnPct, 3);
+
+  const split = buildBoard({
+    bots: [{
+      name: '丁',
+      group: '進攻組',
+      funded: true,
+      return_pct: 1,
+      return_pct_actual: 2,
+      return_pct_with_pending: 5,
+      orders: [
+        { instId: 'BTC-USDT', side: 'buy', ordType: 'limit', sz: '1', px: '1', kind: 'order', est_pnl: 1.5 },
+        { instId: 'BTC-USDT', side: 'sell', ordType: 'limit', sz: '1', px: '2', kind: 'stop' },
+      ],
+    }],
+  });
+  assert.equal(split.bots[0].returnPct, 5);
+  assert.equal(split.bots[0].actualReturnPct, 2);
+  assert.equal(split.bots[0].orders[0].estPnl, 1.5);
+  assert.equal(split.bots[0].orders[1].estPnl, null);
 });
 
 test('shows 未入金 instead of a return when funded is false', () => {
@@ -93,6 +141,7 @@ test('shows 未入金 instead of a return when funded is false', () => {
   assert.equal(board.bots[0].instruments[0], 'ETH-USDT-SWAP');
   assert.equal(board.bots[1].status, '未入金');
   assert.equal(board.bots[1].returnPct, null);
+  assert.equal(board.bots[1].actualReturnPct, null);
   assert.equal(JSON.stringify(board).includes('99'), false);
   assert.equal(board.teams.find((team) => team.name === '進攻組').averageReturnPct, null);
 });
@@ -109,6 +158,9 @@ test('the site only fetches the committed relative JSON and has no secrets', () 
   const app = readFileSync(path.join(root, 'app.js'), 'utf8');
   assert.match(app, /const DATA_URL = 'data\/leaderboard\.json'/);
   assert.equal(app.includes('innerHTML'), false);
+  assert.match(app, /權益金含掛單試算/);
+  assert.match(app, /實際/);
+  assert.match(app, /含掛單試算：把尚未成交的限價掛單當作已在掛單價成交，以現價估算損益；條件單不計入。/);
   const banned = /okx|api[_-]?key|secret|passphrase|clOrdId|password|SITE_PASSWORD|INGEST_TOKEN/i;
   for (const file of walk(root)) {
     if (file.endsWith('leaderboard.test.js')) continue;

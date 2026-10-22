@@ -4,7 +4,7 @@
 
 https://zhengxun-wu.github.io/CryptoTracker/
 
-畫面只呈現每位機器人的交易標的、損益比，以及持單（持倉、委託、停損、停利）。總排行依損益比排序；穩健組與進攻組各自顯示合計損益比與平均損益比。`funded` 為 `false` 的機器人顯示「未入金」，排在最後，不計入組別合計與平均。`env` 為 `demo` 時顯示「模擬盤」。
+畫面只呈現每位機器人的交易標的、報酬率，以及持單（持倉、委託、停損、停利）。名次與組別合計、平均都依「權益金含掛單試算」（`return_pct_with_pending`）排序與加總；卡片上較小的「實際」是 `return_pct_actual`。舊檔若只有 `return_pct`，名次、試算與實際都用這個欄位。`funded` 為 `false` 的機器人顯示「未入金」，排在最後，不計入組別合計與平均。`env` 為 `demo` 時顯示「模擬盤」。尚未成交的限價委託若帶 `est_pnl`，會顯示在該筆委託旁邊；停損與停利沒有這個數字。
 
 ## 競賽分組
 
@@ -37,7 +37,16 @@ data/leaderboard.json
 
 目前提交的檔案是範例。它帶有 `"sample": true` 與 `SAMPLE DATA` 註記，頁面會顯示「範例資料」。閘道機上的排程覆寫並推上 `main` 之後，正式檔不要留 `sample`，徽章就會消失。
 
-`return_pct` 是百分數本身：`-0.02` 表示 -0.02%，`18.64` 表示 +18.64%。`updated_at` 使用帶 `+08:00` 的 ISO 8601。
+報酬率是百分數本身：`-0.02` 表示 -0.02%，`18.64` 表示 +18.64%。`updated_at` 使用帶 `+08:00` 的 ISO 8601。
+
+每位已入金機器人可以同時帶：
+
+- `return_pct_actual`、`equity_actual_usdt`：實際權益與報酬。
+- `pending_pnl_usdt`：把尚未成交的限價掛單當作已在掛單價成交，再以現價估算的損益。條件單不計入。
+- `equity_with_pending_usdt`、`return_pct_with_pending`：實際權益加上上述掛單損益後的權益與報酬。
+- `orders[].est_pnl`：該筆限價掛單的試算損益。條件單省略這個欄位。
+
+`return_pct` 與 `equity_usdt` 仍可讀。沒有 `return_pct_with_pending` 時，排名改用 `return_pct`；沒有 `return_pct_actual` 時，「實際」也改用 `return_pct`。頁面顯示試算報酬、實際報酬與 `est_pnl`，不顯示權益金額、`pending_pnl_usdt`、`markPx` 或 `upl`。
 
 ```json
 {
@@ -53,7 +62,12 @@ data/leaderboard.json
       "group": "穩健組",
       "funded": true,
       "return_pct": -0.02,
+      "return_pct_actual": -0.02,
+      "return_pct_with_pending": 1.25,
       "equity_usdt": 4999.12,
+      "equity_actual_usdt": 4999.12,
+      "pending_pnl_usdt": 63.5,
+      "equity_with_pending_usdt": 5062.62,
       "instruments": ["BTC-USDT"],
       "positions": [
         {
@@ -72,7 +86,8 @@ data/leaderboard.json
           "ordType": "limit",
           "sz": "0.01",
           "px": "80000",
-          "kind": "order"
+          "kind": "order",
+          "est_pnl": 63.5
         }
       ]
     }
@@ -80,7 +95,7 @@ data/leaderboard.json
 }
 ```
 
-`side` 為 `long`、`short` 或 `net`。`orders[].kind` 為 `order`、`stop` 或 `take_profit`。頁面不顯示 `equity_usdt`、`markPx`、`upl`。推上 GitHub 之前請拿掉帳號識別與委託編號。
+`side` 為 `long`、`short` 或 `net`。`orders[].kind` 為 `order`、`stop` 或 `take_profit`。推上 GitHub 之前請拿掉帳號識別與委託編號。
 
 擁有者機器上的排程覆寫 `data/leaderboard.json` 後推上 `main`：
 
