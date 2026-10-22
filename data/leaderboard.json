@@ -1,0 +1,130 @@
+{
+  "sample": true,
+  "_comment": "SAMPLE DATA — 這是範例資料，不是即時交易結果。正式推播請覆寫整個檔案，且不要留下 sample。",
+  "updated_at": "2026-10-22T14:40:00+08:00",
+  "env": "demo",
+  "groups": [
+    { "name": "穩健組", "bots": ["Crypto防禦派", "Crypto保守派"] },
+    { "name": "進攻組", "bots": ["Crypto激進份子", "Crypto狂熱份子"] }
+  ],
+  "bots": [
+    {
+      "name": "Crypto防禦派",
+      "group": "穩健組",
+      "funded": true,
+      "return_pct": -0.02,
+      "equity_usdt": 4999.12,
+      "instruments": ["BTC-USDT"],
+      "positions": [
+        {
+          "instId": "BTC-USDT-SWAP",
+          "side": "long",
+          "size": "0.01",
+          "avgPx": "83000",
+          "markPx": "82980",
+          "upl": "-0.2"
+        }
+      ],
+      "orders": [
+        {
+          "instId": "BTC-USDT-SWAP",
+          "side": "sell",
+          "ordType": "limit",
+          "sz": "0.01",
+          "px": "80800",
+          "kind": "stop"
+        }
+      ]
+    },
+    {
+      "name": "Crypto保守派",
+      "group": "穩健組",
+      "funded": false,
+      "return_pct": 40,
+      "equity_usdt": 0,
+      "instruments": [],
+      "positions": [],
+      "orders": []
+    },
+    {
+      "name": "Crypto激進份子",
+      "group": "進攻組",
+      "funded": true,
+      "return_pct": 18.64,
+      "equity_usdt": 5932,
+      "instruments": ["BTC-USDT", "ETH-USDT"],
+      "positions": [
+        {
+          "instId": "BTC-USDT-SWAP",
+          "side": "long",
+          "size": "0.15",
+          "avgPx": "64250",
+          "markPx": "67120",
+          "upl": "430.5"
+        }
+      ],
+      "orders": [
+        {
+          "instId": "ETH-USDT",
+          "side": "buy",
+          "ordType": "limit",
+          "sz": "0.8",
+          "px": "3180",
+          "kind": "order"
+        },
+        {
+          "instId": "BTC-USDT-SWAP",
+          "side": "sell",
+          "ordType": "limit",
+          "sz": "0.15",
+          "px": "62000",
+          "kind": "stop"
+        },
+        {
+          "instId": "BTC-USDT-SWAP",
+          "side": "sell",
+          "ordType": "limit",
+          "sz": "0.15",
+          "px": "69000",
+          "kind": "take_profit"
+        }
+      ]
+    },
+    {
+      "name": "Crypto狂熱份子",
+      "group": "進攻組",
+      "funded": true,
+      "return_pct": 9.2,
+      "equity_usdt": 5460,
+      "instruments": ["SOL-USDT", "DOGE-USDT"],
+      "positions": [
+        {
+          "instId": "SOL-USDT-SWAP",
+          "side": "short",
+          "size": "12",
+          "avgPx": "178.4",
+          "markPx": "171.2",
+          "upl": "86.4"
+        }
+      ],
+      "orders": [
+        {
+          "instId": "DOGE-USDT",
+          "side": "buy",
+          "ordType": "limit",
+          "sz": "800",
+          "px": "0.162",
+          "kind": "order"
+        },
+        {
+          "instId": "SOL-USDT-SWAP",
+          "side": "buy",
+          "ordType": "limit",
+          "sz": "12",
+          "px": "150",
+          "kind": "take_profit"
+        }
+      ]
+    }
+  ]
+}

@@ -20,7 +20,7 @@ body {
   margin: 0;
   min-height: 100vh;
   color: var(--ink);
-  font-family: var(--font-sans), "Noto Sans CJK TC", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+  font-family: "Noto Sans CJK TC", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
   background-color: var(--bg);
   background-image:
     linear-gradient(90deg, var(--steady), var(--gold), var(--attack)),
@@ -30,10 +30,7 @@ body {
   background-size: 100% 3px, auto, auto;
 }
 
-button, input { font: inherit; color: inherit; }
-
-button { cursor: pointer; }
-
+button { font: inherit; color: inherit; cursor: pointer; }
 button:disabled { cursor: wait; opacity: 0.7; }
 
 :focus-visible {
@@ -53,19 +50,6 @@ button:disabled { cursor: wait; opacity: 0.7; }
   border: 0;
 }
 
-.skip {
-  position: absolute;
-  left: 12px;
-  top: -40px;
-  background: var(--gold);
-  color: #1a1305;
-  padding: 8px 12px;
-  border-radius: 8px;
-  z-index: 30;
-}
-
-.skip:focus { top: 10px; }
-
 .topbar {
   position: sticky;
   top: 0;
@@ -75,7 +59,8 @@ button:disabled { cursor: wait; opacity: 0.7; }
   backdrop-filter: blur(16px);
 }
 
-.topbar-inner, .wrap {
+.topbar-inner,
+.wrap {
   width: min(1120px, 100%);
   margin: 0 auto;
   padding-left: max(16px, env(safe-area-inset-left));
@@ -93,12 +78,7 @@ button:disabled { cursor: wait; opacity: 0.7; }
 }
 
 .brand { display: flex; gap: 12px; align-items: center; min-width: 0; }
-
-.brand h1, .login-card h1 {
-  margin: 0;
-  font-size: 1.7rem;
-  letter-spacing: -0.03em;
-}
+.brand h1, .wrap > h1 { margin: 0; font-size: 1.7rem; letter-spacing: -0.03em; }
 
 .mark {
   display: grid;
@@ -108,27 +88,18 @@ button:disabled { cursor: wait; opacity: 0.7; }
   border-radius: 14px;
   background: #101726;
   border: 1px solid var(--line);
-  font-family: var(--font-display), sans-serif;
   font-weight: 700;
   letter-spacing: 0.04em;
 }
 
-.eyebrow {
-  margin: 0;
-  color: var(--gold);
-  font-size: 0.78rem;
-  letter-spacing: 0.14em;
-}
+.eyebrow { margin: 0; color: var(--gold); font-size: 0.78rem; letter-spacing: 0.14em; }
 
-.actions {
+.actions, .badges, .meta-row, .chips {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
   align-items: center;
-  justify-content: flex-end;
 }
-
-.badges { display: flex; flex-wrap: wrap; gap: 6px; }
 
 .badge, .chip, .team-pill {
   display: inline-flex;
@@ -143,27 +114,17 @@ button:disabled { cursor: wait; opacity: 0.7; }
 .badge.example { color: var(--gold); border-color: rgba(242, 212, 138, 0.45); }
 .badge.demo { color: var(--steady); border-color: rgba(62, 207, 178, 0.5); }
 .badge.live { color: #1a1305; background: #ff5d73; border-color: transparent; font-weight: 700; }
-.badge.stale { color: #ffb15a; border-color: rgba(255, 177, 90, 0.5); }
 
 .updated { margin: 0; color: var(--muted); font-size: 0.92rem; }
 .tz { white-space: nowrap; }
 
-.ghost, .primary {
+.ghost {
   min-height: 44px;
   padding: 0 16px;
   border-radius: 999px;
+  background: transparent;
+  border: 1px solid rgba(232, 238, 249, 0.18);
 }
-
-.ghost { background: transparent; border: 1px solid rgba(232, 238, 249, 0.18); }
-
-.primary {
-  border: 0;
-  background: linear-gradient(180deg, #f6deaa, #e0b44f);
-  color: #1a1305;
-  font-weight: 700;
-}
-
-.ghost:hover, .primary:hover { transform: translateY(-1px); }
 
 .wrap { padding-top: 22px; padding-bottom: 56px; }
 
@@ -176,9 +137,17 @@ button:disabled { cursor: wait; opacity: 0.7; }
   color: #f3e2b4;
 }
 
-.banner.warn { background: rgba(255, 109, 132, 0.08); border-color: rgba(255, 109, 132, 0.35); color: #ffd0d8; }
+.banner.demo-note {
+  background: rgba(62, 207, 178, 0.08);
+  border-color: rgba(62, 207, 178, 0.35);
+  color: #d7fff6;
+}
 
-.panel { margin-top: 8px; }
+.banner.warn {
+  background: rgba(255, 109, 132, 0.08);
+  border-color: rgba(255, 109, 132, 0.35);
+  color: #ffd0d8;
+}
 
 .section-head {
   display: flex;
@@ -191,15 +160,11 @@ button:disabled { cursor: wait; opacity: 0.7; }
 .section-head h2 { margin: 0; font-size: 1.35rem; }
 .section-head p, .footer-note, .empty, .count { color: var(--muted); }
 
-.ranks, .team-bots, .book ul, .chips {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
+.ranks, .book ul, .chips { list-style: none; margin: 0; padding: 0; }
+.ranks, .team-bots, .book-groups, .book ul { display: grid; gap: 12px; }
+.ranks { gap: 14px; }
 
-.ranks { display: grid; gap: 14px; }
-
-.bot-card, .team-card, .login-card {
+.bot-card, .team-card {
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.025), transparent 30%), var(--card);
   border: 1px solid var(--line);
   border-radius: 20px;
@@ -221,19 +186,12 @@ button:disabled { cursor: wait; opacity: 0.7; }
 
 .bot-card[data-team="穩健組"] { --team: var(--steady); }
 .bot-card[data-team="進攻組"] { --team: var(--attack); }
-.bot-card[data-place="1"] { box-shadow: inset 3px 0 0 #f5c451, 0 12px 40px rgba(245, 196, 81, 0.05); }
+.bot-card[data-place="1"] { box-shadow: inset 3px 0 0 #f5c451; }
 .bot-card[data-place="2"] { box-shadow: inset 3px 0 0 #d5deef; }
 .bot-card[data-place="3"] { box-shadow: inset 3px 0 0 #d08958; }
 .bot-card[data-scored="no"] { opacity: 0.78; }
 
-.place {
-  grid-area: place;
-  font-family: var(--font-display), sans-serif;
-  font-size: 2.4rem;
-  line-height: 0.9;
-  color: var(--team);
-}
-
+.place { grid-area: place; font-size: 2.4rem; line-height: 0.9; font-weight: 700; color: var(--team); }
 .identity { grid-area: identity; min-width: 0; }
 .identity h3, .identity h4 { margin: 0; font-size: 1.25rem; overflow-wrap: anywhere; }
 .score { grid-area: score; }
@@ -242,14 +200,13 @@ button:disabled { cursor: wait; opacity: 0.7; }
 
 .score strong, .stat strong {
   display: block;
-  font-family: var(--font-display), sans-serif;
   font-weight: 700;
   letter-spacing: -0.03em;
   font-variant-numeric: tabular-nums;
   line-height: 0.95;
 }
 
-.score strong { font-size: clamp(2.2rem, 10vw, 3.4rem); }
+.score strong { font-size: clamp(2rem, 10vw, 3.2rem); }
 
 .label, .sublabel {
   margin: 0 0 6px;
@@ -258,19 +215,14 @@ button:disabled { cursor: wait; opacity: 0.7; }
   letter-spacing: 0.08em;
 }
 
-.meta-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-
 .team-pill[data-team="穩健組"] { color: var(--steady); border-color: rgba(62, 207, 178, 0.4); }
 .team-pill[data-team="進攻組"] { color: #ffb094; border-color: rgba(255, 106, 61, 0.45); }
-
 .chip.status[data-status="未入金"] { color: var(--gold); border-color: rgba(242, 212, 138, 0.45); }
-.chip.status[data-status="資料異常"] { color: var(--down); border-color: rgba(255, 109, 132, 0.45); }
 
 .up { color: var(--up); }
 .down { color: var(--down); }
 .flat, .none { color: var(--ink); }
 
-.chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .chips li {
   border: 1px solid var(--line);
   border-radius: 999px;
@@ -278,8 +230,6 @@ button:disabled { cursor: wait; opacity: 0.7; }
   overflow-wrap: anywhere;
 }
 
-.book-groups { display: grid; gap: 12px; }
-.book ul { display: grid; gap: 8px; }
 .book li {
   display: flex;
   flex-wrap: wrap;
@@ -292,54 +242,20 @@ button:disabled { cursor: wait; opacity: 0.7; }
 .empty { margin: 0; }
 
 .team-grid { display: grid; gap: 16px; }
-
 .team-card { padding: 16px; min-width: 0; }
 .team-card[data-tone="steady"] { --team: var(--steady); }
 .team-card[data-tone="attack"] { --team: var(--attack); }
 .team-card[data-tone="other"] { --team: #9aa6c2; }
-
 .team-head { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
 .team-head h3 { margin: 0 0 12px; color: var(--team); font-size: 1.45rem; }
 .count { margin: 0 0 12px; }
-
 .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
 .stat { padding: 12px; border-radius: 14px; background: rgba(0, 0, 0, 0.22); min-width: 0; }
 .stat strong { font-size: clamp(1.5rem, 4vw, 2.1rem); overflow-wrap: anywhere; }
-
-.team-bots { display: grid; gap: 12px; }
 .bot-card.compact { padding: 12px; }
 .bot-card.compact .place { font-size: 1.6rem; }
-.bot-card.compact .score strong { font-size: clamp(1.8rem, 8vw, 2.4rem); }
-
+.bot-card.compact .score strong { font-size: clamp(1.7rem, 8vw, 2.3rem); }
 .footer-note { margin: 28px 0 0; text-align: center; }
-
-.login-shell {
-  min-height: 100vh;
-  display: grid;
-  place-items: center;
-  padding: 24px max(16px, env(safe-area-inset-right)) 24px max(16px, env(safe-area-inset-left));
-}
-
-.login-card {
-  width: min(440px, 100%);
-  padding: 28px 22px;
-  box-shadow: none;
-}
-
-.lede { color: var(--muted); line-height: 1.6; }
-
-.login-card form { display: grid; gap: 10px; }
-.login-card label { font-size: 0.92rem; }
-.login-card input {
-  width: 100%;
-  min-height: 48px;
-  padding: 12px 14px;
-  border-radius: 12px;
-  border: 1px solid var(--line);
-  background: #0c1220;
-}
-
-.form-error { margin: 0; color: #ffd0d8; }
 
 @media (min-width: 800px) {
   .bot-card {
@@ -352,8 +268,4 @@ button:disabled { cursor: wait; opacity: 0.7; }
   }
   .score { text-align: right; }
   .team-grid { grid-template-columns: 1fr 1fr; align-items: start; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .ghost:hover, .primary:hover { transform: none; }
 }
