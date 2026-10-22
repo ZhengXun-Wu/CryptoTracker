@@ -151,6 +151,36 @@ function normalizeOrder(value, algo = false) {
   };
 }
 
+function metricNumber(primary, secondary, key) {
+  for (const source of [primary, secondary]) {
+    if (!source || typeof source !== 'object' || !Object.prototype.hasOwnProperty.call(source, key)) continue;
+    const parsed = finiteNumber(source[key]);
+    if (parsed != null) return parsed;
+  }
+  return null;
+}
+
+function statNumber(value) {
+  if (typeof value === 'string') return finiteNumber(value.replace(/%$/, '').replace(/,/g, ''));
+  return finiteNumber(value);
+}
+
+function readStats(primary, secondary) {
+  const source = primary && primary.stats != null ? primary : (secondary && secondary.stats != null ? secondary : null);
+  const stats = source && source.stats;
+  if (!stats || typeof stats !== 'object' || Array.isArray(stats)) return null;
+  const closedTrades = statNumber(stats.closed_trades);
+  if (closedTrades == null || closedTrades === 0) return null;
+  return {
+    closedTrades,
+    wins: statNumber(stats.wins),
+    losses: statNumber(stats.losses),
+    winRatePct: statNumber(stats.win_rate_pct),
+    avgWinUsdt: statNumber(stats.avg_win_usdt),
+    avgLossUsdt: statNumber(stats.avg_loss_usdt),
+  };
+}
+
 function listedOrders(bot) {
   if (!bot || typeof bot !== 'object') return [];
   const plain = Array.isArray(bot.open_orders) ? bot.open_orders : (Array.isArray(bot.orders) ? bot.orders : []);
@@ -184,6 +214,9 @@ function normalizeBot(value) {
     status: funded ? 'ok' : '未入金',
     returnPct: funded ? returnPct : null,
     actualReturnPct: funded ? actualReturnPct : null,
+    equityWithPending: funded ? metricNumber(value, null, 'equity_with_pending_usdt') : null,
+    totalEq: funded ? metricNumber(value, null, 'total_eq_usdt') : null,
+    stats: funded ? readStats(value, null) : null,
     scored: funded && returnPct != null,
     instruments,
     positions,
@@ -279,6 +312,9 @@ function normalizeGatewayBot(summary, detailEntry) {
     status: active ? 'ok' : status,
     returnPct: active ? returnPct : null,
     actualReturnPct: active ? actualReturnPct : null,
+    equityWithPending: active ? metricNumber(detail, summary, 'equity_with_pending_usdt') : null,
+    totalEq: active ? metricNumber(detail, summary, 'total_eq_usdt') : null,
+    stats: active ? readStats(detail, summary) : null,
     scored: active && returnPct != null,
     instruments,
     positions,
