@@ -218,7 +218,9 @@ button:disabled { cursor: wait; opacity: 0.7; }
 .score .score-headline strong { font-size: clamp(2rem, 10vw, 3.2rem); }
 .score .score-actual strong { font-size: 1.15rem; line-height: 1.15; }
 .score .label { letter-spacing: 0.04em; overflow-wrap: anywhere; }
-.est-pnl { font-variant-numeric: tabular-nums; font-weight: 700; }
+.est-pnl, .est-ignored { font-variant-numeric: tabular-nums; }
+.est-pnl { font-weight: 700; }
+.est-ignored { color: var(--muted); }
 
 .label, .sublabel {
   margin: 0 0 6px;

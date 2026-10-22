@@ -49,7 +49,7 @@ test('ranks the sample file and hides account fields', () => {
   assert.match(board.updatedAtLabel, /2026/);
   assert.match(board.updatedAtLabel, /14/);
   assert.deepEqual(board.bots.map((bot) => [bot.name, bot.returnPct, bot.actualReturnPct, bot.status]), [
-    ['Crypto激進份子', 21.04, 18.64, 'ok'],
+    ['Crypto激進份子', 18.34, 18.64, 'ok'],
     ['Crypto狂熱份子', 8.4, 9.2, 'ok'],
     ['Crypto防禦派', -0.02, -0.02, 'ok'],
     ['Crypto保守派', null, null, '未入金'],
@@ -57,31 +57,47 @@ test('ranks the sample file and hides account fields', () => {
   const leader = board.bots[0];
   assert.deepEqual(leader.instruments, ['BTC-USDT', 'ETH-USDT']);
   assert.equal(leader.positions[0].side, '多');
+  assert.equal(leader.positions[0].size, '0.15');
   const ethOrder = leader.orders.find((order) => order.instrument === 'ETH-USDT');
-  assert.equal(ethOrder.estPnl, 120);
+  assert.equal(ethOrder.estPnl, 0);
+  assert.equal(ethOrder.estPnlRaw, 120);
+  const losingOrder = leader.orders.find((order) => order.instrument === 'BTC-USDT' && order.kind === '委託');
+  assert.equal(losingOrder.estPnl, -15);
   const stop = leader.orders.find((order) => order.kind === '停損');
   const takeProfit = leader.orders.find((order) => order.kind === '停利');
   assert.equal(stop.price, '62000');
   assert.equal(stop.estPnl, null);
+  assert.equal(stop.estPnlRaw, null);
   assert.equal(takeProfit.price, '69000');
   assert.equal(takeProfit.estPnl, null);
-  assert.equal(board.bots[1].orders.find((order) => order.instrument === 'DOGE-USDT').estPnl, -40);
+  const doge = board.bots[1].orders.find((order) => order.instrument === 'DOGE-USDT');
+  assert.equal(doge.estPnl, -40);
+  assert.equal(doge.estPnlRaw, -40);
+  const ignored = board.bots[1].orders.find((order) => order.instrument === 'SOL-USDT');
+  assert.equal(ignored.estPnl, 0);
+  assert.equal(ignored.estPnlRaw, 25);
   const attack = board.teams.find((team) => team.name === '進攻組');
   const steady = board.teams.find((team) => team.name === '穩健組');
-  assert.ok(Math.abs(attack.totalReturnPct - 29.44) < 1e-9);
-  assert.ok(Math.abs(attack.averageReturnPct - 14.72) < 1e-9);
+  assert.equal(attack.portfolio, true);
+  assert.ok(Math.abs(attack.headlineReturnPct - 13.37) < 1e-9);
+  assert.ok(Math.abs(attack.actualReturnPct - 13.92) < 1e-9);
+  assert.equal(attack.totalReturnPct, null);
+  assert.equal(attack.scoredCount, 2);
   assert.equal(steady.scoredCount, 1);
-  assert.equal(steady.averageReturnPct, -0.02);
-  assert.equal(steady.totalReturnPct, -0.02);
+  assert.equal(steady.headlineReturnPct, -0.02);
+  assert.equal(steady.actualReturnPct, -0.02);
   const blob = JSON.stringify(board);
   const present = keysOf(board);
-  for (const hidden of ['equity_usdt', 'equity_actual_usdt', 'equity_with_pending_usdt', 'pending_pnl_usdt', 'markPx', 'upl', 'clOrdId', 'uid', 'apiKey']) {
+  for (const hidden of ['equity_usdt', 'equity_actual_usdt', 'equity_with_pending_usdt', 'pending_pnl_usdt', 'starting_capital_usdt', 'markPx', 'upl', 'ordId', 'clOrdId', 'uid', 'apiKey', 'accFillSz', 'instType']) {
     assert.equal(present.has(hidden), false);
   }
   assert.equal(blob.includes('4999.12'), false);
   assert.equal(blob.includes('5932'), false);
+  assert.equal(blob.includes('5917'), false);
+  assert.equal(blob.includes('11337'), false);
   assert.equal(blob.includes('67120'), false);
   assert.equal(blob.includes('77.77'), false);
+  assert.equal(blob.includes('1001'), false);
 });
 
 test('ranks by return_pct_with_pending and keeps older return_pct files', () => {
@@ -121,7 +137,65 @@ test('ranks by return_pct_with_pending and keeps older return_pct files', () => 
   assert.equal(split.bots[0].returnPct, 5);
   assert.equal(split.bots[0].actualReturnPct, 2);
   assert.equal(split.bots[0].orders[0].estPnl, 1.5);
+  assert.equal(split.bots[0].orders[0].estPnlRaw, null);
   assert.equal(split.bots[0].orders[1].estPnl, null);
+});
+
+test('reads the gateway shape, keeps ranking order, and drops ids', () => {
+  const board = buildBoard({
+    env: 'demo',
+    generated_at: '2026-10-22T15:05:00+08:00',
+    rank_by: 'return_pct_with_pending',
+    ranking: [
+      { rank: '1', bot: '低報酬', group: '穩健組', status: 'ok', return_pct_actual: '1', return_pct_with_pending: '1', open_orders: '1', open_algo_orders: '0' },
+      { rank: '2', bot: '高報酬', group: '進攻組', status: 'ok', return_pct_actual: '9', return_pct_with_pending: '9', open_orders: '0', open_algo_orders: '0' },
+      { rank: '3', bot: '尚未設定', group: '進攻組', status: '未設定', return_pct_with_pending: '80', equity_actual_usdt: '9000' },
+      { rank: '4', bot: '讀取失敗', group: '穩健組', status: '錯誤', return_pct_actual: '4', return_pct_with_pending: '4' },
+    ],
+    groups: {
+      穩健組: {
+        return_pct_actual: '1',
+        return_pct_with_pending: '1',
+        equity_actual_usdt: '5000',
+        bots: [
+          {
+            bot: '低報酬',
+            status: 'ok',
+            return_pct_actual: '1',
+            return_pct_with_pending: '1',
+            instruments: ['BTC-USDT'],
+            positions: [{ instId: 'BTC-USDT-SWAP', posSide: 'long', pos: '1', avgPx: '1', markPx: '2', upl: '3' }],
+            open_orders: [{ instId: 'BTC-USDT', side: 'buy', ordType: 'limit', px: '1', sz: '1', est_pnl: '0', est_pnl_raw: '4.5', ordId: '9', clOrdId: 'abc', uid: 'u' }],
+            open_algo_orders: [],
+          },
+        ],
+      },
+      進攻組: {
+        return_pct_actual: '9',
+        return_pct_with_pending: '9',
+        bots: [
+          { bot: '高報酬', status: 'ok', return_pct_actual: '9', return_pct_with_pending: '9', instruments: [], positions: [], open_orders: [], open_algo_orders: [] },
+          { bot: '尚未設定', status: '未設定', return_pct_with_pending: '80', instruments: [], positions: [], open_orders: [], open_algo_orders: [] },
+        ],
+      },
+    },
+  });
+  assert.deepEqual(board.bots.map((bot) => [bot.name, bot.returnPct, bot.status]), [
+    ['低報酬', 1, 'ok'],
+    ['高報酬', 9, 'ok'],
+    ['尚未設定', null, '未設定'],
+    ['讀取失敗', null, '錯誤'],
+  ]);
+  assert.equal(board.bots[0].orders[0].estPnl, 0);
+  assert.equal(board.bots[0].orders[0].estPnlRaw, 4.5);
+  assert.equal(board.bots[2].returnPct, null);
+  assert.equal(JSON.stringify(board).includes('80'), false);
+  assert.equal(JSON.stringify(board).includes('9000'), false);
+  const present = keysOf(board);
+  for (const hidden of ['ordId', 'clOrdId', 'uid', 'markPx', 'upl', 'equity_actual_usdt']) {
+    assert.equal(present.has(hidden), false);
+  }
+  assert.match(board.updatedAtLabel, /15:05|15:05:00|03:05/);
 });
 
 test('shows 未入金 instead of a return when funded is false', () => {
@@ -160,7 +234,8 @@ test('the site only fetches the committed relative JSON and has no secrets', () 
   assert.equal(app.includes('innerHTML'), false);
   assert.match(app, /權益金含掛單試算/);
   assert.match(app, /實際/);
-  assert.match(app, /含掛單試算：把尚未成交的限價掛單當作已在掛單價成交，以現價估算損益；條件單不計入。/);
+  assert.match(app, /含掛單試算：把尚未成交的限價掛單當作已在掛單價成交，以現價估算；只計入虧損，試算為獲利則以 0 計。條件單不計入。已成交部位照常計算未實現損益。/);
+  assert.match(app, /試算 \+\$\{order\.estPnlRaw\.toFixed\(2\)\}，不計入/);
   const banned = /okx|api[_-]?key|secret|passphrase|clOrdId|password|SITE_PASSWORD|INGEST_TOKEN/i;
   for (const file of walk(root)) {
     if (file.endsWith('leaderboard.test.js')) continue;

@@ -4,7 +4,7 @@
 
 https://zhengxun-wu.github.io/CryptoTracker/
 
-畫面只呈現每位機器人的交易標的、報酬率，以及持單（持倉、委託、停損、停利）。名次與組別合計、平均都依「權益金含掛單試算」（`return_pct_with_pending`）排序與加總；卡片上較小的「實際」是 `return_pct_actual`。舊檔若只有 `return_pct`，名次、試算與實際都用這個欄位。`funded` 為 `false` 的機器人顯示「未入金」，排在最後，不計入組別合計與平均。`env` 為 `demo` 時顯示「模擬盤」。尚未成交的限價委託若帶 `est_pnl`，會顯示在該筆委託旁邊；停損與停利沒有這個數字。
+畫面只呈現每位機器人的交易標的、報酬率，以及持單（持倉、委託、停損、停利）。名次依資料檔的 `ranking`；沒有這份名單時，改依「權益金含掛單試算」（`return_pct_with_pending`）排序。卡片上的大數字是這個試算，旁邊較小的「實際」是 `return_pct_actual`。組別若自帶這兩個報酬率，畫面直接用檔案裡的數字，不再把個人報酬相加。`status` 為「未入金」、「未設定」或「錯誤」時只顯示狀態，不顯示報酬，也不計入組別。`env` 為 `demo` 時顯示「模擬盤」。限價掛單旁顯示 `est_pnl`；獲利的原始試算放在 `est_pnl_raw`，畫面上以灰色「試算 +x，不計入」標出。條件單不計入、也不帶這兩個數字。
 
 ## 競賽分組
 
@@ -37,65 +37,66 @@ data/leaderboard.json
 
 目前提交的檔案是範例。它帶有 `"sample": true` 與 `SAMPLE DATA` 註記，頁面會顯示「範例資料」。閘道機上的排程覆寫並推上 `main` 之後，正式檔不要留 `sample`，徽章就會消失。
 
-報酬率是百分數本身：`-0.02` 表示 -0.02%，`18.64` 表示 +18.64%。`updated_at` 使用帶 `+08:00` 的 ISO 8601。
+報酬率是百分數本身：`-0.02` 表示 -0.02%，`18.64` 表示 +18.64%。正式檔的數字是字串。`generated_at`（舊檔可用 `updated_at`）使用帶 `+08:00` 的 ISO 8601。
 
-每位已入金機器人可以同時帶：
+含掛單試算把尚未成交的限價掛單當作已在掛單價成交，再以現價估算；只計入虧損，獲利以 0 計。條件單不計入。已成交部位照常計算未實現損益。`est_pnl` 是已經截成不大於 0 的數字，`est_pnl_raw` 保留截斷前的原值。
 
-- `return_pct_actual`、`equity_actual_usdt`：實際權益與報酬。
-- `pending_pnl_usdt`：把尚未成交的限價掛單當作已在掛單價成交，再以現價估算的損益。條件單不計入。
-- `equity_with_pending_usdt`、`return_pct_with_pending`：實際權益加上上述掛單損益後的權益與報酬。
-- `orders[].est_pnl`：該筆限價掛單的試算損益。條件單省略這個欄位。
+頁面接受閘道直接寫出的形狀：頂層有 `env`、`generated_at`、`rank_by`、`ranking`，以及 `groups` 物件（「穩健組」、「進攻組」）。每位機器人的持倉在 `positions`，限價掛單在 `open_orders`，條件單在 `open_algo_orders`。`ranking` 裡的 `open_orders` 只是筆數。頁面不依賴委託編號或帳號識別，這些應在推上 GitHub 之前拿掉。權益金額、`pending_pnl_usdt`、`markPx`、`upl` 可以留在檔案裡，畫面不顯示。
 
-`return_pct` 與 `equity_usdt` 仍可讀。沒有 `return_pct_with_pending` 時，排名改用 `return_pct`；沒有 `return_pct_actual` 時，「實際」也改用 `return_pct`。頁面顯示試算報酬、實際報酬與 `est_pnl`，不顯示權益金額、`pending_pnl_usdt`、`markPx` 或 `upl`。
+舊檔仍可讀：頂層 `bots` 陣列，`funded: false` 視為未入金，只有 `return_pct` 時名次與兩個報酬率都用它。
 
 ```json
 {
-  "updated_at": "2026-10-22T14:40:00+08:00",
   "env": "demo",
-  "groups": [
-    { "name": "穩健組", "bots": ["Crypto防禦派", "Crypto保守派"] },
-    { "name": "進攻組", "bots": ["Crypto激進份子", "Crypto狂熱份子"] }
-  ],
-  "bots": [
+  "generated_at": "2026-10-22T14:40:00+08:00",
+  "rank_by": "return_pct_with_pending",
+  "ranking": [
     {
-      "name": "Crypto防禦派",
+      "rank": "1",
+      "bot": "Crypto防禦派",
       "group": "穩健組",
-      "funded": true,
-      "return_pct": -0.02,
-      "return_pct_actual": -0.02,
-      "return_pct_with_pending": 1.25,
-      "equity_usdt": 4999.12,
-      "equity_actual_usdt": 4999.12,
-      "pending_pnl_usdt": 63.5,
-      "equity_with_pending_usdt": 5062.62,
-      "instruments": ["BTC-USDT"],
-      "positions": [
+      "status": "ok",
+      "return_pct_actual": "-0.02",
+      "return_pct_with_pending": "-0.02",
+      "open_orders": "1",
+      "open_algo_orders": "0"
+    }
+  ],
+  "groups": {
+    "穩健組": {
+      "return_pct_actual": "-0.02",
+      "return_pct_with_pending": "-0.02",
+      "bots": [
         {
-          "instId": "BTC-USDT-SWAP",
-          "side": "long",
-          "size": "0.01",
-          "avgPx": "83000",
-          "markPx": "83100",
-          "upl": "1.0"
-        }
-      ],
-      "orders": [
-        {
-          "instId": "BTC-USDT",
-          "side": "buy",
-          "ordType": "limit",
-          "sz": "0.01",
-          "px": "80000",
-          "kind": "order",
-          "est_pnl": 63.5
+          "bot": "Crypto防禦派",
+          "group": "穩健組",
+          "status": "ok",
+          "return_pct_actual": "-0.02",
+          "return_pct_with_pending": "-0.02",
+          "instruments": ["BTC-USDT"],
+          "positions": [
+            { "instId": "BTC-USDT-SWAP", "posSide": "long", "pos": "0.01", "avgPx": "83000" }
+          ],
+          "open_orders": [
+            {
+              "instId": "BTC-USDT",
+              "side": "buy",
+              "ordType": "limit",
+              "px": "80000",
+              "sz": "0.01",
+              "est_pnl": "0",
+              "est_pnl_raw": "12.5"
+            }
+          ],
+          "open_algo_orders": []
         }
       ]
     }
-  ]
+  }
 }
 ```
 
-`side` 為 `long`、`short` 或 `net`。`orders[].kind` 為 `order`、`stop` 或 `take_profit`。推上 GitHub 之前請拿掉帳號識別與委託編號。
+持倉的 `posSide` 為 `long`、`short` 或 `net`。條件單用 `slTriggerPx` 或 `tpTriggerPx`，沒有 `est_pnl`。
 
 擁有者機器上的排程覆寫 `data/leaderboard.json` 後推上 `main`：
 

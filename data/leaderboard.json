@@ -1,152 +1,259 @@
 {
   "sample": true,
   "_comment": "SAMPLE DATA — 這是範例資料，不是即時交易結果。正式推播請覆寫整個檔案，且不要留下 sample。",
-  "updated_at": "2026-10-22T14:40:00+08:00",
   "env": "demo",
-  "groups": [
-    { "name": "穩健組", "bots": ["Crypto防禦派", "Crypto保守派"] },
-    { "name": "進攻組", "bots": ["Crypto激進份子", "Crypto狂熱份子"] }
+  "generated_at": "2026-10-22T14:40:00+08:00",
+  "rank_by": "return_pct_with_pending",
+  "ranking": [
+    {
+      "rank": "1",
+      "bot": "Crypto激進份子",
+      "group": "進攻組",
+      "status": "ok",
+      "equity_actual_usdt": "5932",
+      "return_pct_actual": "18.64",
+      "pending_pnl_usdt": "-15",
+      "equity_with_pending_usdt": "5917",
+      "return_pct_with_pending": "18.34",
+      "open_orders": "2",
+      "open_algo_orders": "2"
+    },
+    {
+      "rank": "2",
+      "bot": "Crypto狂熱份子",
+      "group": "進攻組",
+      "status": "ok",
+      "equity_actual_usdt": "5460",
+      "return_pct_actual": "9.2",
+      "pending_pnl_usdt": "-40",
+      "equity_with_pending_usdt": "5420",
+      "return_pct_with_pending": "8.4",
+      "open_orders": "2",
+      "open_algo_orders": "1"
+    },
+    {
+      "rank": "3",
+      "bot": "Crypto防禦派",
+      "group": "穩健組",
+      "status": "ok",
+      "equity_actual_usdt": "4999.12",
+      "return_pct_actual": "-0.02",
+      "pending_pnl_usdt": "0",
+      "equity_with_pending_usdt": "4999.12",
+      "return_pct_with_pending": "-0.02",
+      "open_orders": "0",
+      "open_algo_orders": "1"
+    },
+    {
+      "rank": "4",
+      "bot": "Crypto保守派",
+      "group": "穩健組",
+      "status": "未入金",
+      "equity_actual_usdt": "0",
+      "return_pct_actual": "77.77",
+      "pending_pnl_usdt": "0",
+      "equity_with_pending_usdt": "0",
+      "return_pct_with_pending": "77.77",
+      "open_orders": "0",
+      "open_algo_orders": "0"
+    }
   ],
-  "bots": [
-    {
-      "name": "Crypto防禦派",
-      "group": "穩健組",
-      "funded": true,
-      "return_pct": -0.02,
-      "return_pct_actual": -0.02,
-      "equity_usdt": 4999.12,
-      "equity_actual_usdt": 4999.12,
-      "pending_pnl_usdt": 0,
-      "equity_with_pending_usdt": 4999.12,
-      "return_pct_with_pending": -0.02,
-      "instruments": ["BTC-USDT"],
-      "positions": [
+  "groups": {
+    "穩健組": {
+      "starting_capital_usdt": "5000",
+      "equity_actual_usdt": "4999.12",
+      "return_pct_actual": "-0.02",
+      "pending_pnl_usdt": "0",
+      "equity_with_pending_usdt": "4999.12",
+      "return_pct_with_pending": "-0.02",
+      "bots": [
         {
-          "instId": "BTC-USDT-SWAP",
-          "side": "long",
-          "size": "0.01",
-          "avgPx": "83000",
-          "markPx": "82980",
-          "upl": "-0.2"
-        }
-      ],
-      "orders": [
+          "bot": "Crypto防禦派",
+          "group": "穩健組",
+          "status": "ok",
+          "equity_actual_usdt": "4999.12",
+          "return_pct_actual": "-0.02",
+          "pending_pnl_usdt": "0",
+          "equity_with_pending_usdt": "4999.12",
+          "return_pct_with_pending": "-0.02",
+          "instruments": ["BTC-USDT"],
+          "positions": [
+            {
+              "instId": "BTC-USDT-SWAP",
+              "instType": "SWAP",
+              "posSide": "long",
+              "pos": "0.01",
+              "avgPx": "83000",
+              "markPx": "82980",
+              "upl": "-0.2"
+            }
+          ],
+          "open_orders": [],
+          "open_algo_orders": [
+            {
+              "instId": "BTC-USDT-SWAP",
+              "instType": "SWAP",
+              "side": "sell",
+              "posSide": "long",
+              "ordType": "conditional",
+              "sz": "0.01",
+              "slTriggerPx": "80800",
+              "slOrdPx": "-1"
+            }
+          ]
+        },
         {
-          "instId": "BTC-USDT-SWAP",
-          "side": "sell",
-          "ordType": "limit",
-          "sz": "0.01",
-          "px": "80800",
-          "kind": "stop"
+          "bot": "Crypto保守派",
+          "group": "穩健組",
+          "status": "未入金",
+          "equity_actual_usdt": "0",
+          "return_pct_actual": "77.77",
+          "pending_pnl_usdt": "0",
+          "equity_with_pending_usdt": "0",
+          "return_pct_with_pending": "77.77",
+          "instruments": [],
+          "positions": [],
+          "open_orders": [],
+          "open_algo_orders": []
         }
       ]
     },
-    {
-      "name": "Crypto保守派",
-      "group": "穩健組",
-      "funded": false,
-      "return_pct": 40,
-      "return_pct_actual": 40,
-      "equity_usdt": 0,
-      "equity_actual_usdt": 0,
-      "pending_pnl_usdt": 0,
-      "equity_with_pending_usdt": 0,
-      "return_pct_with_pending": 77.77,
-      "instruments": [],
-      "positions": [],
-      "orders": []
-    },
-    {
-      "name": "Crypto激進份子",
-      "group": "進攻組",
-      "funded": true,
-      "return_pct": 18.64,
-      "return_pct_actual": 18.64,
-      "equity_usdt": 5932,
-      "equity_actual_usdt": 5932,
-      "pending_pnl_usdt": 120,
-      "equity_with_pending_usdt": 6052,
-      "return_pct_with_pending": 21.04,
-      "instruments": ["BTC-USDT", "ETH-USDT"],
-      "positions": [
+    "進攻組": {
+      "starting_capital_usdt": "10000",
+      "equity_actual_usdt": "11392",
+      "return_pct_actual": "13.92",
+      "pending_pnl_usdt": "-55",
+      "equity_with_pending_usdt": "11337",
+      "return_pct_with_pending": "13.37",
+      "bots": [
         {
-          "instId": "BTC-USDT-SWAP",
-          "side": "long",
-          "size": "0.15",
-          "avgPx": "64250",
-          "markPx": "67120",
-          "upl": "430.5"
-        }
-      ],
-      "orders": [
-        {
-          "instId": "ETH-USDT",
-          "side": "buy",
-          "ordType": "limit",
-          "sz": "0.8",
-          "px": "3180",
-          "kind": "order",
-          "est_pnl": 120
+          "bot": "Crypto激進份子",
+          "group": "進攻組",
+          "status": "ok",
+          "equity_actual_usdt": "5932",
+          "return_pct_actual": "18.64",
+          "pending_pnl_usdt": "-15",
+          "equity_with_pending_usdt": "5917",
+          "return_pct_with_pending": "18.34",
+          "instruments": ["BTC-USDT", "ETH-USDT"],
+          "positions": [
+            {
+              "instId": "BTC-USDT-SWAP",
+              "instType": "SWAP",
+              "posSide": "long",
+              "pos": "0.15",
+              "avgPx": "64250",
+              "markPx": "67120",
+              "upl": "430.5"
+            }
+          ],
+          "open_orders": [
+            {
+              "instId": "ETH-USDT",
+              "instType": "SPOT",
+              "side": "buy",
+              "ordType": "limit",
+              "px": "3180",
+              "sz": "0.8",
+              "accFillSz": "0",
+              "ordId": "1001",
+              "est_pnl": "0",
+              "est_pnl_raw": "120"
+            },
+            {
+              "instId": "BTC-USDT",
+              "instType": "SPOT",
+              "side": "buy",
+              "ordType": "limit",
+              "px": "70000",
+              "sz": "0.02",
+              "accFillSz": "0",
+              "est_pnl": "-15",
+              "est_pnl_raw": "-15"
+            }
+          ],
+          "open_algo_orders": [
+            {
+              "instId": "BTC-USDT-SWAP",
+              "instType": "SWAP",
+              "side": "sell",
+              "posSide": "long",
+              "ordType": "conditional",
+              "sz": "0.15",
+              "slTriggerPx": "62000",
+              "slOrdPx": "-1"
+            },
+            {
+              "instId": "BTC-USDT-SWAP",
+              "instType": "SWAP",
+              "side": "sell",
+              "posSide": "long",
+              "ordType": "conditional",
+              "sz": "0.15",
+              "tpTriggerPx": "69000",
+              "tpOrdPx": "-1"
+            }
+          ]
         },
         {
-          "instId": "BTC-USDT-SWAP",
-          "side": "sell",
-          "ordType": "limit",
-          "sz": "0.15",
-          "px": "62000",
-          "kind": "stop"
-        },
-        {
-          "instId": "BTC-USDT-SWAP",
-          "side": "sell",
-          "ordType": "limit",
-          "sz": "0.15",
-          "px": "69000",
-          "kind": "take_profit"
-        }
-      ]
-    },
-    {
-      "name": "Crypto狂熱份子",
-      "group": "進攻組",
-      "funded": true,
-      "return_pct": 9.2,
-      "return_pct_actual": 9.2,
-      "equity_usdt": 5460,
-      "equity_actual_usdt": 5460,
-      "pending_pnl_usdt": -40,
-      "equity_with_pending_usdt": 5420,
-      "return_pct_with_pending": 8.4,
-      "instruments": ["SOL-USDT", "DOGE-USDT"],
-      "positions": [
-        {
-          "instId": "SOL-USDT-SWAP",
-          "side": "short",
-          "size": "12",
-          "avgPx": "178.4",
-          "markPx": "171.2",
-          "upl": "86.4"
-        }
-      ],
-      "orders": [
-        {
-          "instId": "DOGE-USDT",
-          "side": "buy",
-          "ordType": "limit",
-          "sz": "800",
-          "px": "0.162",
-          "kind": "order",
-          "est_pnl": -40
-        },
-        {
-          "instId": "SOL-USDT-SWAP",
-          "side": "buy",
-          "ordType": "limit",
-          "sz": "12",
-          "px": "150",
-          "kind": "take_profit"
+          "bot": "Crypto狂熱份子",
+          "group": "進攻組",
+          "status": "ok",
+          "equity_actual_usdt": "5460",
+          "return_pct_actual": "9.2",
+          "pending_pnl_usdt": "-40",
+          "equity_with_pending_usdt": "5420",
+          "return_pct_with_pending": "8.4",
+          "instruments": ["SOL-USDT", "DOGE-USDT"],
+          "positions": [
+            {
+              "instId": "SOL-USDT-SWAP",
+              "instType": "SWAP",
+              "posSide": "short",
+              "pos": "12",
+              "avgPx": "178.4",
+              "markPx": "171.2",
+              "upl": "86.4"
+            }
+          ],
+          "open_orders": [
+            {
+              "instId": "DOGE-USDT",
+              "instType": "SPOT",
+              "side": "buy",
+              "ordType": "limit",
+              "px": "0.162",
+              "sz": "800",
+              "accFillSz": "0",
+              "est_pnl": "-40",
+              "est_pnl_raw": "-40"
+            },
+            {
+              "instId": "SOL-USDT",
+              "instType": "SPOT",
+              "side": "buy",
+              "ordType": "limit",
+              "px": "160",
+              "sz": "1",
+              "accFillSz": "0",
+              "est_pnl": "0",
+              "est_pnl_raw": "25"
+            }
+          ],
+          "open_algo_orders": [
+            {
+              "instId": "SOL-USDT-SWAP",
+              "instType": "SWAP",
+              "side": "buy",
+              "posSide": "short",
+              "ordType": "conditional",
+              "sz": "12",
+              "tpTriggerPx": "150",
+              "tpOrdPx": "-1"
+            }
+          ]
         }
       ]
     }
-  ]
+  }
 }

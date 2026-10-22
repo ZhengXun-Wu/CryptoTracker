@@ -25,8 +25,9 @@ function line(parts) {
 function book(bot) {
   const block = el('div', 'book');
   block.append(el('p', 'label', '持單'));
-  const stops = bot.orders.filter((order) => order.kind === '停損' || order.kind === '停利');
-  const opens = bot.orders.filter((order) => order.kind !== '停損' && order.kind !== '停利');
+  const conditional = (order) => order.kind === '停損' || order.kind === '停利' || order.kind === '策略單';
+  const stops = bot.orders.filter(conditional);
+  const opens = bot.orders.filter((order) => !conditional(order));
   if (bot.positions.length === 0 && bot.orders.length === 0) {
     block.append(el('p', 'empty', '目前沒有持單'));
     return block;
@@ -76,6 +77,9 @@ function orderGroup(title, orders) {
       order.size ? `數量 ${order.size}` : '',
     ]);
     if (order.estPnl != null) item.append(el('span', `est-pnl ${returnTone(order.estPnl)}`, formatEstimate(order.estPnl)));
+    if (order.estPnlRaw != null && order.estPnlRaw > 0) {
+      item.append(el('span', 'est-ignored', `試算 +${order.estPnlRaw.toFixed(2)}，不計入`));
+    }
     list.append(item);
   }
   section.append(list);
@@ -114,9 +118,9 @@ function botCard(bot, compact) {
   const lineBox = el('div', 'score-line');
   const headline = el('div', 'score-headline');
   headline.append(el('p', 'label', '權益金含掛單試算'));
-  headline.append(el('strong', returnTone(bot.returnPct), bot.status === '未入金' ? '未入金' : formatReturn(bot.returnPct)));
+  headline.append(el('strong', returnTone(bot.returnPct), bot.status === 'ok' ? formatReturn(bot.returnPct) : bot.status));
   lineBox.append(headline);
-  if (bot.status !== '未入金') {
+  if (bot.status === 'ok') {
     const actual = el('div', 'score-actual');
     actual.append(el('p', 'label', '實際'));
     actual.append(el('strong', returnTone(bot.actualReturnPct), formatReturn(bot.actualReturnPct)));
@@ -193,7 +197,7 @@ function render(board) {
   const teamHead = el('div', 'section-head');
   const teamsHeading = el('h2', '', '分組戰況');
   teamsHeading.id = 'teams-heading';
-  teamHead.append(teamsHeading, el('p', '', '合計與平均依權益金含掛單試算，只計入已入金的選手。'));
+  teamHead.append(teamsHeading, el('p', '', '未入金、未設定與錯誤不計入組別報酬。'));
   teams.append(teamHead);
   const grid = el('div', 'team-grid');
   for (const team of board.teams) {
@@ -202,7 +206,10 @@ function render(board) {
     const head = el('header', 'team-head');
     head.append(el('h3', '', team.name), el('p', 'count', `計入 ${team.scoredCount} 位`));
     const stats = el('div', 'stats');
-    for (const [label, value] of [['平均（含掛單）', team.averageReturnPct], ['合計（含掛單）', team.totalReturnPct]]) {
+    const pairs = team.portfolio
+      ? [['權益金含掛單試算', team.headlineReturnPct], ['實際', team.actualReturnPct]]
+      : [['平均（含掛單）', team.averageReturnPct], ['合計（含掛單）', team.totalReturnPct]];
+    for (const [label, value] of pairs) {
       const stat = el('div', 'stat');
       stat.append(el('p', 'label', label), el('strong', returnTone(value), formatReturn(value)));
       stats.append(stat);
@@ -218,7 +225,7 @@ function render(board) {
     grid.append(card);
   }
   teams.append(grid);
-  main.append(overall, teams, el('p', 'footer-note', '含掛單試算：把尚未成交的限價掛單當作已在掛單價成交，以現價估算損益；條件單不計入。'));
+  main.append(overall, teams, el('p', 'footer-note', '含掛單試算：把尚未成交的限價掛單當作已在掛單價成交，以現價估算；只計入虧損，試算為獲利則以 0 計。條件單不計入。已成交部位照常計算未實現損益。'));
   root.append(header, main);
 }
 
